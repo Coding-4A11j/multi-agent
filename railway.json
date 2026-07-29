@@ -1,0 +1,13 @@
+{
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "Dockerfile"
+  },
+  "deploy": {
+    "numReplicas": 1,
+    "restartPolicyType": "ON_FAILURE",
+    "healthcheckTimeout": 60,
+    "healthcheckPath": "/health",
+    "startCommand": "node apps/api/dist/index.js"
+  }
+}
