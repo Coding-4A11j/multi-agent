@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: #080808;
+  color: #ebebeb;
+  font-size: 13px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection { background: #6366f128; }
+
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #252525; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #333; }
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
+  50%       { box-shadow: 0 0 0 5px rgba(59,130,246,0); }
+}
+
+@layer components {
+  .card {
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
+    border-radius: 10px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 11px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.1s, border-color 0.1s, color 0.1s;
+    border: 1px solid transparent;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
+  .btn-primary {
+    background: #6366f1;
+    color: #fff;
+    border-color: #6366f1;
+  }
+  .btn-primary:hover { background: #7577f3; border-color: #7577f3; }
+
+  .btn-secondary {
+    background: transparent;
+    color: #666;
+    border-color: #1e1e1e;
+  }
+  .btn-secondary:hover { color: #e8e8e8; border-color: #2a2a2a; background: #141414; }
+
+  .input {
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
+    border-radius: 7px;
+    padding: 8px 11px;
+    color: #ebebeb;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.1s;
+    line-height: 1.5;
+  }
+  .input:focus { border-color: #6366f1; }
+  .input::placeholder { color: #333; }
+
+  .label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #404040;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .divider { border: none; border-top: 1px solid #1a1a1a; }
+}

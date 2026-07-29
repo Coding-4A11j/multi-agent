@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Task {
+  id             String     @id @default(cuid())
+  goal           String
+  status         TaskStatus @default(PENDING)
+  tokenBudget    Int        @default(100000)
+  maxRunRetries  Int        @default(2)
+  maxStepRetries Int        @default(2)
+  workDir        String     @default("/tmp/multi-agent-workspace")
+  plannerModel   String     @default("openai/gpt-4o")
+  criticModel    String     @default("openai/gpt-4o-mini")
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  runs           TaskRun[]
+  logs           TaskLog[]
+
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+}
+
+enum TaskStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model TaskRun {
+  id          String    @id @default(cuid())
+  taskId      String
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  attempt     Int       @default(1)
+  status      RunStatus @default(PENDING)
+  tokensUsed  Int       @default(0)
+  errorCtx    String?
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+  steps       TaskStep[]
+
+  @@index([taskId])
+}
+
+enum RunStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+model TaskStep {
+  id          String     @id @default(cuid())
+  runId       String
+  run         TaskRun    @relation(fields: [runId], references: [id], onDelete: Cascade)
+  stepNumber  Int
+  workerType  WorkerType
+  description String
+  input       Json
+  output      Json?
+  status      StepStatus @default(PENDING)
+  tokensUsed  Int        @default(0)
+  errorMsg    String?
+  retryCount  Int        @default(0)
+  createdAt   DateTime   @default(now())
+  completedAt DateTime?
+
+  @@index([runId])
+}
+
+enum WorkerType {
+  FILE_IO
+  SHELL
+  PLAYWRIGHT
+  CODE_SEARCH
+  PLANNER
+  CRITIC
+}
+
+enum StepStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  SKIPPED
+}
+
+model TaskLog {
+  id        String   @id @default(cuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  level     LogLevel @default(INFO)
+  message   String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([taskId])
+  @@index([createdAt(sort: Desc)])
+}
+
+enum LogLevel {
+  DEBUG
+  INFO
+  WARN
+  ERROR
+}
