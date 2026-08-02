@@ -645,6 +645,8 @@ Create a `.env` file in the repo root (or in `apps/api/` for the server only).
 | `APP_URL` | No | `http://localhost:3000` | Sent as `HTTP-Referer` to OpenRouter |
 | `API_TOKEN` | Yes in production | — | Bearer token required by every API route except `/health`. Set the same value on the API and on the web app |
 | `API_URL` | No | `NEXT_PUBLIC_API_URL` | Server-side API base URL used by the Next.js proxy middleware |
+| `APP_PASSWORD` | Yes in production | — | Enables the HTTP Basic gate in front of the whole frontend. Unset = no gate |
+| `APP_USERNAME` | No | `admin` | Username for the Basic gate |
 
 ### Authentication
 
@@ -658,9 +660,20 @@ unauthenticated deployment is remote code execution as a service.
 The browser never sees the token. `apps/web/src/middleware.ts` proxies `/api/*` to the API and
 attaches the header server-side, so `API_TOKEN` stays out of the client bundle.
 
-> The token protects the API. It does not protect the UI — anyone who can open your deployed
-> frontend can still create tasks through it. Put Vercel password protection or a real login in
-> front of the frontend if its URL is public.
+The same middleware also gates the entire frontend behind HTTP Basic auth when `APP_PASSWORD` is
+set. Without that gate the token above protects nothing in practice: anyone who can open the
+deployed URL can create tasks through your UI.
+
+```
+Browser ──Basic auth──► Next.js middleware ──Bearer API_TOKEN──► Fastify API
+          APP_PASSWORD                        (server-side only)
+```
+
+Both gates are off when their env var is unset, so local development needs no credentials.
+
+> Basic auth is a single shared password with no session management, no rate limiting on guesses,
+> and no per-user audit trail. It is a reasonable lock for a private deployment, not an
+> authentication system for real users. Serve it over HTTPS only — Vercel does that by default.
 
 ---
 
