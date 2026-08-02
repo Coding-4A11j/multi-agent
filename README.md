@@ -643,6 +643,24 @@ Create a `.env` file in the repo root (or in `apps/api/` for the server only).
 | `CORS_ORIGIN` | No | `http://localhost:3000` | Allowed frontend origin |
 | `NEXT_PUBLIC_API_URL` | No | `http://localhost:3001` | API base URL (used by Next.js frontend) |
 | `APP_URL` | No | `http://localhost:3000` | Sent as `HTTP-Referer` to OpenRouter |
+| `API_TOKEN` | Yes in production | — | Bearer token required by every API route except `/health`. Set the same value on the API and on the web app |
+| `API_URL` | No | `NEXT_PUBLIC_API_URL` | Server-side API base URL used by the Next.js proxy middleware |
+
+### Authentication
+
+Every route except `/health` requires `Authorization: Bearer $API_TOKEN`. The SSE stream also
+accepts `?token=` because `EventSource` cannot set headers.
+
+If `API_TOKEN` is unset the guard is disabled and the API logs a warning on boot. That is fine
+locally, but never on a public host: the SHELL worker executes arbitrary commands, so an
+unauthenticated deployment is remote code execution as a service.
+
+The browser never sees the token. `apps/web/src/middleware.ts` proxies `/api/*` to the API and
+attaches the header server-side, so `API_TOKEN` stays out of the client bundle.
+
+> The token protects the API. It does not protect the UI — anyone who can open your deployed
+> frontend can still create tasks through it. Put Vercel password protection or a real login in
+> front of the frontend if its URL is public.
 
 ---
 

@@ -3,6 +3,7 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import sensible from "@fastify/sensible";
 import rateLimit from "@fastify/rate-limit";
+import { registerAuth } from "./plugins/auth.js";
 import { tasksRoutes } from "./routes/tasks.js";
 import { connectDB, disconnectDB } from "./db/client.js";
 import { closeBrowser } from "./agents/workers/playwright.worker.js";
@@ -43,6 +44,9 @@ async function bootstrap(): Promise<void> {
   });
 
   app.get("/health", async () => ({ ok: true, timestamp: new Date().toISOString() }));
+
+  // Must be registered before the routes so it guards every one of them.
+  registerAuth(app);
 
   await app.register(tasksRoutes);
 
