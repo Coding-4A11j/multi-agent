@@ -6,6 +6,7 @@
     "packages/*"
   ],
   "scripts": {
+    "predev": "npm run build --workspace=packages/shared",
     "dev": "concurrently -n API,WEB -c magenta,cyan \"npm run dev --workspace=apps/api\" \"npm run dev --workspace=apps/web\"",
     "build": "npm run build --workspace=packages/shared && npm run build --workspace=apps/api && npm run build --workspace=apps/web",
     "db:push": "npm run db:push --workspace=apps/api",

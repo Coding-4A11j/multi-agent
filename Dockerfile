@@ -18,8 +18,11 @@ RUN npm ci
 
 COPY . .
 
-# Prisma client + TypeScript build. `prisma generate` does not need DATABASE_URL.
-RUN npm run db:generate --workspace=apps/api \
+# The API imports CreateTaskSchema from @multi-agent/shared at runtime, so shared must be
+# compiled to JS first — its package entry points at dist/, which Node can actually load.
+# `prisma generate` does not need DATABASE_URL.
+RUN npm run build --workspace=packages/shared \
+  && npm run db:generate --workspace=apps/api \
   && npm run build --workspace=apps/api
 
 # Chromium for the Playwright worker, matching the pinned playwright version.
